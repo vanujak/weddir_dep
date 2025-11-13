@@ -10,7 +10,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'https://sayido.lk',
       'https://sayido-eta.vercel.app',
-      'https://returning-wealth-sql-definition.trycloudflare.com',
+      'https://sayido.duckdns.org',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
