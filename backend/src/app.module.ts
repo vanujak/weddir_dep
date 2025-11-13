@@ -28,16 +28,15 @@ import { EmbeddingsModule } from "./modules/ai/embeddings.module";
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: () => ({
-        type: "postgres",
-        url: process.env.DATABASE_URL,
-        ssl: true,
-        entities: [join(__dirname, "**", "*.entity.{ts,js}")],
-        synchronize: process.env.TYPEORM_SYNC === "true",
-      }),
-    }),
+    TypeOrmModule.forRoot({
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  autoLoadEntities: true,
+  synchronize: process.env.TYPEORM_SYNC === 'true',
+}),
     AuthModule,
     MongooseModule.forRoot(process.env.MONGODB_URI),
     ChatModule,
