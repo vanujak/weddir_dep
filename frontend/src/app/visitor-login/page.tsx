@@ -22,38 +22,42 @@ const LoginPage = () => {
   const { login } = useAuth();
 
   // Handle form submission logic
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null); // Reset error before making the login request
-    setIsLoading(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null); // reset any old errors
+  setIsLoading(true);
 
-    try {
-      const response = await loginApi(email, password);
+  try {
+    // Send login request to backend
+    const response = await loginApi(email, password);
 
-      if (response) {
-        // Since the token is now stored in a cookie, trigger the context login using the cookie token
-        const storedToken = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('access_token='));
+    // ✅ Check if backend returned token
+    if (response && response.access_token) {
+      const token = response.access_token;
 
-        if (storedToken) {
-          const token = storedToken.split('=')[1];
-          login(token); // Call the context login function with the token
-        }
+      // ✅ Save token in context (or localStorage if you prefer)
+      login(token);
 
-        // Redirect to profile page after successful login
-        router.push('/visitor-dashboard');
-        setIsLoading(false);
-      } else {
-        setError('Login failed. Please try again.');
-      }
-    } catch (err) {
-      setError('Login failed. Please check your credentials.');
-      toast.error('Login Failed', { style: { background: '#333', color: '#fff' }, });
-      console.error('Login failed:', err);
-      setIsLoading(false);
+      // ✅ Redirect to dashboard
+      router.push('/visitor-dashboard');
+    } else {
+      // ❌ No token found in backend response
+      setError('No token received. Please try again.');
+      toast.error('No token received. Please try again.', {
+        style: { background: '#333', color: '#fff' },
+      });
     }
-  };
+  } catch (err) {
+    console.error('Login failed:', err);
+    setError('Login failed. Please check your credentials.');
+    toast.error('Login Failed', {
+      style: { background: '#333', color: '#fff' },
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="relative w-full min-h-screen h-screen overflow-hidden">

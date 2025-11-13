@@ -19,36 +19,39 @@ const VendorLoginPage = () => {
     const { login } = useVendorAuth();
     const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+   const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
 
-        try {
-            // Send login request via API
-            const response = await loginVendorAPI(email, password);
+  try {
+    // Send login request to backend
+    const response = await loginVendorAPI(email, password);
 
-            if (response) {
-                // Since the token is now stored in a cookie, trigger the context login using the cookie token
-                const storedToken = document.cookie
-                  .split('; ')
-                  .find(row => row.startsWith('access_tokenVendor='));
+    // ✅ Check if backend returned a token
+    if (response && response.access_token) {
+      const token = response.access_token;
 
-                if (storedToken) {
-                    const token = storedToken.split('=')[1];
-                    login(token); // Call the context login function with the token
-                }
+      // ✅ Store token and trigger context login
+      login(token);
 
-                // Redirect to profile page after successful login
-                router.push('/vendor-dashboard');
-            } else {
-                toast.error('Login failed. Please try again.', {style: {background: '#333',color: '#fff',},});
-                //alert('Login failed. Please try again.');
-            }
-        } catch (err) {
-            console.log(err);
-            setError('Invalid credentials. Please try again.'); // Set error message here
-            toast.error('Invalid credentials. Please try again.', {style: {background: '#333',color: '#fff',},});
-        }
-    };
+      // ✅ Redirect to dashboard
+      router.push('/vendor-dashboard');
+    } else {
+      // ❌ No token received from backend
+      setError('No token received. Please try again.');
+      toast.error('No token received. Please try again.', {
+        style: { background: '#333', color: '#fff' },
+      });
+    }
+  } catch (err) {
+    console.error('Login failed:', err);
+    setError('Invalid credentials. Please try again.');
+    toast.error('Invalid credentials. Please try again.', {
+      style: { background: '#333', color: '#fff' },
+    });
+  }
+};
+
 
     return (
       <div>
