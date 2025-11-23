@@ -14,8 +14,7 @@ import { Button } from "@/components/ui/button";
 import LoaderJelly from "@/components/shared/Loaders/LoaderJelly";
 import { Service } from "@/types/serviceTypes";
 import { FiEdit } from "react-icons/fi";
-import QuickActions from "@/components/vendor-dashboard/QuickActions";
-import ToDo from "@/components/vendor-dashboard/ToDo";
+
 
 const VendorDashBoard: React.FC = () => {
   const { vendor } = useVendorAuth();
@@ -69,7 +68,7 @@ const VendorDashBoard: React.FC = () => {
       <div className="container mx-auto px-4 py-6">
         <VendorBanner vendor={vendorInfo} />
 
-       
+
 
         {/* About Section */}
         <div className="flex items-center mt-8 mb-8">

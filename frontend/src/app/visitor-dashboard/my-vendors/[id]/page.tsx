@@ -42,16 +42,6 @@ const MyVendors = () => {
     return (data?.findAllMyVendors || []).filter((v: MyVendor) => v?.offering);
   }, [data]);
 
-  useEffect(() => {
-    console.log({
-      visitorId: visitor?.id,
-      expandedCategories: Array.from(expandedCategories),
-      data,
-      error
-    });
-  }, [data, error, visitor?.id, expandedCategories]);
-
-
   const [showAdded, setShowAdded] = useState(false);
 
   const handleCategoryClick = (category: string) => {
@@ -157,6 +147,6 @@ const MyVendors = () => {
       </div>
     </div>
   );
-};//exp
+};
 
 export default MyVendors;

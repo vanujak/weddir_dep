@@ -10,7 +10,7 @@ function getCookie(name: string, request: NextRequest) {
 // Route definitions
 const publicRoutes = ['/about', '/contact'];
 const visitorRoutes = ['/visitor-profile', '/visitor-dashboard'];
-const vendorRoutes = ['/vendor-dashboard', '/services/edit'];
+// const vendorRoutes = ['/vendor-dashboard', '/services/edit']; // Unused
 
 // Middleware to handle role-based authentication redirection
 export async function middleware(request: NextRequest) {

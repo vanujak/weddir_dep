@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Automatically log in if the token exists
         login(token);
       } catch (error) {
-        console.error("Invalid token in localStorage", error);
+        // console.error("Invalid token in localStorage", error);
         localStorage.removeItem('access_token');
       }
     }
