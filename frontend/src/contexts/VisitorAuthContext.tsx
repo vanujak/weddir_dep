@@ -49,14 +49,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       id: decoded.sub, // Assuming the sub is the visitor's ID
       email: decoded.email, // Email extracted from JWT
     });
+
+    // Save to localStorage
+    localStorage.setItem('access_token', token);
   };
 
   const logout = () => {
     // Clear visitor and accessToken state
     setVisitor(null);
     setAccessToken(null);
-    // Delete the access_token cookie
-    document.cookie = "access_token=; Max-Age=0; path=/;";
+    // Remove from localStorage
+    localStorage.removeItem('access_token');
     // Redirect to sign-in page
     router.push("/");
   };
@@ -65,15 +68,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!accessToken && !!visitor;
 
   useEffect(() => {
-    // On page load, check if there is an access token in the cookies
-    const storedToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("access_token="));
+    // On page load, check if there is an access token in localStorage
+    const token = localStorage.getItem('access_token');
 
-    if (storedToken) {
-      const token = storedToken.split("=")[1];
-      // Automatically log in if the token exists
-      login(token);
+    if (token) {
+      try {
+        // Automatically log in if the token exists
+        login(token);
+      } catch (error) {
+        console.error("Invalid token in localStorage", error);
+        localStorage.removeItem('access_token');
+      }
     }
   }, []);
 

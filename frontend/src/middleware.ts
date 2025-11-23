@@ -18,32 +18,32 @@ export async function middleware(request: NextRequest) {
 
   // Get auth tokens
   const vendorToken = getCookie('access_tokenVendor', request);
-  const visitorToken = getCookie('access_token', request);
+  // const visitorToken = getCookie('access_token', request); // Visitor token is now in localStorage
 
   // Check if it's a service edit route
   const serviceEditMatch = pathname.match(/^\/services\/edit\/([^/]+)$/);
-  
+
   if (serviceEditMatch) {
     // For service edit routes, require vendor authentication
     if (!vendorToken) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-    
+
     // The actual authorization check for the specific vendor
     // will need to be done in the page component since middleware
     // can't access the full application state
     return NextResponse.next();
   }
 
-  // Handle unauthenticated users
-  if (!vendorToken && !visitorToken) {
+  // Handle unauthenticated users (Vendor only check)
+  if (!vendorToken) {
     // Allow access to public routes
     if (publicRoutes.includes(pathname)) {
       return NextResponse.next();
     }
 
-    // If the user is not authenticated and tries to access protected routes, redirect to login
-    return NextResponse.redirect(new URL('/visitor-login', request.url));
+    // We can no longer check for visitorToken here as it's in localStorage
+    // Client-side protection will handle visitor routes
   }
 
   // Handle vendor user access
@@ -54,13 +54,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Handle visitor user access
-  if (visitorToken) {
-    // If visitor tries to access vendor routes, redirect to visitor dashboard
-    if (vendorRoutes.some(route => pathname.startsWith(route))) {
-      return NextResponse.redirect(new URL('/visitor-dashboard', request.url));
-    }
-  }
+  // Visitor route protection is now handled client-side
 
   // If all conditions are satisfied, continue
   return NextResponse.next();

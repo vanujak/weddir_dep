@@ -1,12 +1,26 @@
 'use client';
 
 import Breadcrumbs from '@/components/Breadcrumbs';
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { FIND_ALL_MY_VENDORS } from '@/graphql/queries';
 import { useAuth } from '@/contexts/VisitorAuthContext';
 import CategoryDropdown from '@/components/visitor-dashboard/my-vendors/CategoryDropdown';
 import categories from '@/utils/category.json';
+
+interface MyVendor {
+  id: string;
+  offering: {
+    id: string;
+    name: string;
+    category: string;
+    banner: string;
+    vendor: {
+      busname: string;
+      city: string;
+    };
+  };
+}
 
 const MyVendors = () => {
   const { visitor } = useAuth();
@@ -18,19 +32,25 @@ const MyVendors = () => {
       variables: {
         visitorId: visitor?.id,
       },
-      skip: !visitor,
+      skip: !visitor?.id,
+      fetchPolicy: 'cache-and-network', // Ensure we get fresh data
     }
   );
 
-  // Get all vendors
-  const allVendors = data?.findAllMyVendors || [];
+  // Get all vendors and ensure they have an offering
+  const allVendors = useMemo(() => {
+    return (data?.findAllMyVendors || []).filter((v: MyVendor) => v?.offering);
+  }, [data]);
 
-  console.log({
-    visitorId: visitor?.id,
-    expandedCategories: Array.from(expandedCategories),
-    data,
-    error
-  });
+  useEffect(() => {
+    console.log({
+      visitorId: visitor?.id,
+      expandedCategories: Array.from(expandedCategories),
+      data,
+      error
+    });
+  }, [data, error, visitor?.id, expandedCategories]);
+
 
   const [showAdded, setShowAdded] = useState(false);
 
@@ -46,14 +66,30 @@ const MyVendors = () => {
     });
   };
 
+  // Extract unique categories from vendors
+  const vendorCategories = useMemo(() => {
+    return Array.from(new Set(
+      allVendors
+        .map((v: MyVendor) => v.offering?.category)
+        .filter((c: string) => typeof c === 'string')
+    ));
+  }, [allVendors]);
+
+  // Merge with static categories to ensure we show everything
+  const allCategories = useMemo(() => {
+    return Array.from(new Set([...categories, ...vendorCategories as string[]]));
+  }, [vendorCategories]);
+
   // Filter categories that have vendors if showAdded is true
-  const filteredCategories = showAdded
-    ? categories.filter((category) => 
+  const filteredCategories = useMemo(() => {
+    return showAdded
+      ? allCategories.filter((category) =>
         allVendors.some(
-          (vendor: { offering: { category: string; }; }) => vendor.offering.category === category
+          (vendor: MyVendor) => vendor.offering?.category === category
         )
       )
-    : categories;
+      : allCategories;
+  }, [showAdded, allCategories, allVendors]);
 
   return (
     <div className="py-4 px-2 md:py-6 md:px-4">
@@ -88,16 +124,14 @@ const MyVendors = () => {
                 className="hidden"
               />
               <span
-                className={`relative inline-block w-12 h-6 transition duration-200 ease-linear rounded-full ${
-                  showAdded ? "bg-slate-600" : "bg-orange"
-                }`}
+                className={`relative inline-block w-12 h-6 transition duration-200 ease-linear rounded-full ${showAdded ? "bg-slate-600" : "bg-orange"
+                  }`}
               >
                 <span
-                  className={`absolute left-0 inline-block w-6 h-6 transform transition duration-100 ease-linear bg-white rounded-full ${
-                    showAdded
-                      ? "translate-x-full bg-slate-600"
-                      : "translate-x-0 bg-orange"
-                  }`}
+                  className={`absolute left-0 inline-block w-6 h-6 transform transition duration-100 ease-linear bg-white rounded-full ${showAdded
+                    ? "translate-x-full bg-slate-600"
+                    : "translate-x-0 bg-orange"
+                    }`}
                 />
               </span>
               <span className="ml-3 text-sm font-body font-medium text-gray-900">

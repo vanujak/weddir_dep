@@ -3,27 +3,26 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import VendorCard from '@/components/visitor-dashboard/my-vendors/VendorCard';
 import { CategoryDropdownProps } from '@/types/myVendorsTypes';
 
-const CategoryDropdown = ({ 
-  category, 
-  isExpanded, 
-  onToggle, 
-  loading, 
-  vendors 
+const CategoryDropdown = ({
+  category,
+  isExpanded,
+  onToggle,
+  loading,
+  vendors
 }: CategoryDropdownProps) => {
   // Filter vendors to only show offerings in this category
   const offeringsInCategory = vendors.filter(
-    (myVendor) => myVendor.offering.category === category
+    (myVendor) => myVendor?.offering?.category === category
   );
-  
+
   const hasOfferings = offeringsInCategory.length > 0;
 
   return (
     <div className="w-full mb-4">
       <button
         onClick={() => onToggle(category)}
-        className={`w-full p-4 rounded-t-lg shadow-sm flex justify-between items-center transition-colors ${
-          isExpanded ? 'bg-black/50 text-white rounded-b-none' : 'bg-white hover:bg-orange/10 rounded-lg'
-        }`}
+        className={`w-full p-4 rounded-t-lg shadow-sm flex justify-between items-center transition-colors ${isExpanded ? 'bg-black/50 text-white rounded-b-none' : 'bg-white hover:bg-orange/10 rounded-lg'
+          }`}
       >
         <span className="font-semibold">{category}</span>
         {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
