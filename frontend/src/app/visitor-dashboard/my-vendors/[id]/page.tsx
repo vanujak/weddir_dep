@@ -1,7 +1,7 @@
 'use client';
 
 import Breadcrumbs from '@/components/Breadcrumbs';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { FIND_ALL_MY_VENDORS } from '@/graphql/queries';
 import { useAuth } from '@/contexts/VisitorAuthContext';
@@ -26,7 +26,7 @@ const MyVendors = () => {
   const { visitor } = useAuth();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
-  const { data, loading, error } = useQuery(
+  const { data, loading } = useQuery(
     FIND_ALL_MY_VENDORS,
     {
       variables: {
