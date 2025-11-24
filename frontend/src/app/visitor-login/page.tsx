@@ -22,41 +22,42 @@ const LoginPage = () => {
   const { login } = useAuth();
 
   // Handle form submission logic
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError(null); // reset any old errors
-  setIsLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null); // reset any old errors
+    setIsLoading(true);
+    try {
+      // Send login request to backend
+      const response = await loginApi(email, password);
 
-  try {
-    // Send login request to backend
-    const response = await loginApi(email, password);
+      // ✅ Check if backend returned token
+      console.log("Login API Response:", response); // Debugging
+      const token = response?.access_token;
 
-    // ✅ Check if backend returned token
-    if (response && response.access_token) {
-      const token = response.access_token;
+      if (token) {
+        // ✅ Save token in context (or localStorage if you prefer)
+        login(token);
 
-      // ✅ Save token in context (or localStorage if you prefer)
-      login(token);
-
-      // ✅ Redirect to dashboard
-      router.push('/visitor-dashboard');
-    } else {
-      // ❌ No token found in backend response
-      setError('No token received. Please try again.');
-      toast.error('No token received. Please try again.', {
+        // ✅ Redirect to dashboard
+        router.push('/visitor-dashboard');
+      } else {
+        // ❌ No token found in backend response
+        console.error("Token missing in response:", response);
+        setError('No token received. Please try again.');
+        toast.error('No token received. Please try again.', {
+          style: { background: '#333', color: '#fff' },
+        });
+      }
+    } catch (err) {
+      console.error('Login failed:', err);
+      setError('Login failed. Please check your credentials.');
+      toast.error('Login Failed', {
         style: { background: '#333', color: '#fff' },
       });
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    console.error('Login failed:', err);
-    setError('Login failed. Please check your credentials.');
-    toast.error('Login Failed', {
-      style: { background: '#333', color: '#fff' },
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
 
   return (
